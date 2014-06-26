@@ -12,6 +12,7 @@ use Yii;
 use yii\base\View;
 use yii\base\ViewRenderer as BaseViewRenderer;
 use Jade\Jade;
+//yii\web\View yii\base\View::render($view, $params = Array, $context = NULL)
 
 class ViewRenderer extends BaseViewRenderer
 {
@@ -30,6 +31,32 @@ class ViewRenderer extends BaseViewRenderer
      * @var \Jade\Jade
      */
     private $_jade = null;
+
+    /**
+     * @param string $file
+     * @return array
+     */
+    private function _makeComplilePath($file)
+    {
+        $digest = md5($file);
+        $dir = Yii::getAlias($this->_compilePath) . DIRECTORY_SEPARATOR . $digest[0] . DIRECTORY_SEPARATOR . $digest[1] . DIRECTORY_SEPARATOR . $digest[2];
+        $name = substr($digest, 3) . '.php';
+        return [
+            'dir'  => $dir,
+            'path' => $dir . DIRECTORY_SEPARATOR . $name
+        ];
+    }
+
+    /**
+     *
+     */
+    private  function _render()
+    {
+        extract(func_get_arg(1));
+        ob_start();
+        include func_get_arg(0);
+        return ob_get_clean();
+    }
 
     /**
      *
@@ -55,10 +82,20 @@ class ViewRenderer extends BaseViewRenderer
      */
     public function render($view, $file, $params)
     {
-        $params['this'] = $view;
-        return $this->_jade->render($file, $params);
-        //Yii::getAlias($this->_cachePath)
-        //Yii::getAlias($this->_compilePath)
-    }
+        //$params['this'] = $view;
+        $params['app']  = Yii::$app;
+        $result = $this->_makeComplilePath($file);
 
+        if (@filemtime($file) > @filectime($result['path'])) {
+            $time = date('Y-m-d H:i:s');
+            $tpl  = "<?php /* Compiled from $file at $time */ ?>\n" . $this->_jade->render($file, $params);
+            if (!@file_put_contents($result['path'], $tpl)) {
+                mkdir(Yii::getAlias($result['dir']), 0755, true);
+                file_put_contents($result['path'], $tpl);
+            };
+        }
+
+        return $view->renderPhpFile($result['path'], $params);
+        //return $this->_render($result['path'], $params);
+    }
 }
