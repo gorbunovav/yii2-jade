@@ -11,7 +11,7 @@ namespace optimus\jade;
 use Yii;
 use yii\base\View;
 use yii\base\ViewRenderer as BaseViewRenderer;
-//use Jade
+use Jade\Jade;
 
 class ViewRenderer extends BaseViewRenderer
 {
@@ -27,11 +27,17 @@ class ViewRenderer extends BaseViewRenderer
     private $_compilePath = '@runtime/optimus/jade/compile';
 
     /**
+     * @var \Jade\Jade
+     */
+    private $_jade = null;
+
+    /**
      *
      */
     public function init()
     {
-
+        parent::init();
+        $this->_jade = new Jade();
     }
 
 
@@ -49,6 +55,8 @@ class ViewRenderer extends BaseViewRenderer
      */
     public function render($view, $file, $params)
     {
+        $params['this'] = $view;
+        return $this->_jade->render($file, $params);
         //Yii::getAlias($this->_cachePath)
         //Yii::getAlias($this->_compilePath)
     }

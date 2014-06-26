@@ -2,12 +2,5 @@
     "name": "optimus/yii2-jade",
     "version": "0.1",
     "description": "HAML-like template engine for Yii2",
-    "keywords": ["jade", "yii2","template"],
-
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/sisoftrg/jade.php"
-        }
-    ]
+    "keywords": ["jade", "yii2","template"]
 }
