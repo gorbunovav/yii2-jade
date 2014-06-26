@@ -2,5 +2,8 @@
     "name": "optimus/yii2-jade",
     "version": "0.1.1",
     "description": "HAML-like template engine for Yii2",
-    "keywords": ["jade", "yii2","template"]
+    "keywords": ["jade", "yii2","template"],
+    "autoload": {
+        "psr-4": { "optimus\\jade\\": "" }
+    }
 }
