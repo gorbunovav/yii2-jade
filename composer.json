@@ -3,9 +3,7 @@
     "version": "0.1",
     "description": "HAML-like template engine for Yii2",
     "keywords": ["jade", "yii2","template"],
-    "require": {
-        "lukegb/jade.php": "dev-master"
-    },
+
     "repositories": [
         {
             "type": "vcs",
