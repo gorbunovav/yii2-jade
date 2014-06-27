@@ -36,7 +36,7 @@ class ViewRenderer extends BaseViewRenderer
      * @param string $file
      * @return array
      */
-    private function _makeComplilePath($file)
+    private function _makeCompilePath($file)
     {
         $digest = md5($file);
         $dir = Yii::getAlias($this->_compilePath) . DIRECTORY_SEPARATOR . $digest[0] . DIRECTORY_SEPARATOR . $digest[1] . DIRECTORY_SEPARATOR . $digest[2];
@@ -84,7 +84,7 @@ class ViewRenderer extends BaseViewRenderer
     {
 
         $params['app']  = Yii::$app;
-        $result = $this->_makeComplilePath($file);
+        $result = $this->_makeCompilePath($file);
 
         if (@filemtime($file) > @filemtime($result['path'])) {
             $time = date('Y-m-d H:i:s');
