@@ -82,10 +82,11 @@ class ViewRenderer extends BaseViewRenderer
      */
     public function render($view, $file, $params)
     {
+
         $params['app']  = Yii::$app;
         $result = $this->_makeComplilePath($file);
 
-        if (@filemtime($file) > @filectime($result['path'])) {
+        if (@filemtime($file) > @filemtime($result['path'])) {
             $time = date('Y-m-d H:i:s');
             $tpl  = "<?php /* Compiled from $file at $time */ ?>\n" . $this->_jade->render($file, $params);
             if (!@file_put_contents($result['path'], $tpl)) {
