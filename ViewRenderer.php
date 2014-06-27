@@ -82,7 +82,6 @@ class ViewRenderer extends BaseViewRenderer
      */
     public function render($view, $file, $params)
     {
-        //$params['this'] = $view;
         $params['app']  = Yii::$app;
         $result = $this->_makeComplilePath($file);
 
@@ -95,7 +94,6 @@ class ViewRenderer extends BaseViewRenderer
             };
         }
 
-        return $view->renderPhpFile($result['path'], $params);
-        //return $this->_render($result['path'], $params);
+        return $view->renderPhpFile($result['path'], $params, $view->context);
     }
 }
