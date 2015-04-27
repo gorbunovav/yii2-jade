@@ -11,6 +11,7 @@ namespace optimus\jade;
 use Yii;
 use yii\base\View;
 use yii\base\ViewRenderer as BaseViewRenderer;
+use yii\base\Exception;
 use Jade\Jade;
 //yii\web\View yii\base\View::render($view, $params = Array, $context = NULL)
 
@@ -32,19 +33,24 @@ class ViewRenderer extends BaseViewRenderer
      */
     private $_jade = null;
 
+    private $_prettyPrint = YII_DEBUG;
+
     /**
      * @param string $file
      * @return array
      */
     private function _makeCompilePath($file)
     {
-        $digest = md5($file);
-        $dir = Yii::getAlias($this->_compilePath) . DIRECTORY_SEPARATOR . $digest[0] . DIRECTORY_SEPARATOR . $digest[1] . DIRECTORY_SEPARATOR . $digest[2];
-        $name = substr($digest, 3) . '.php';
-        return [
-            'dir'  => $dir,
-            'path' => $dir . DIRECTORY_SEPARATOR . $name
-        ];
+        $rootPath = Yii::getAlias('@app');
+
+        if (mb_strpos($file, $rootPath) === false) {
+            throw new \yii\base\Exception('Template file should be inside app root!');
+        }
+
+        $relativePath = str_replace($rootPath, '', $file);
+        $targetFile = Yii::getAlias($this->_compilePath) . DIRECTORY_SEPARATOR . $relativePath . '.php';
+
+        return $targetFile;
     }
 
     /**
@@ -64,7 +70,7 @@ class ViewRenderer extends BaseViewRenderer
     public function init()
     {
         parent::init();
-        $this->_jade = new Jade();
+        $this->_jade = new Jade($this->_prettyPrint);
     }
 
 
@@ -84,17 +90,19 @@ class ViewRenderer extends BaseViewRenderer
     {
 
         $params['app']  = Yii::$app;
-        $result = $this->_makeCompilePath($file);
+        $targetPath = $this->_makeCompilePath($file);
 
-        if (@filemtime($file) > @filemtime($result['path'])) {
+        if (@filemtime($file) > @filemtime($targetPath)) {
             $time = date('Y-m-d H:i:s');
+
             $tpl  = "<?php /* Compiled from $file at $time */ ?>\n" . $this->_jade->render($file, $params);
-            if (!@file_put_contents($result['path'], $tpl)) {
-                mkdir(Yii::getAlias($result['dir']), 0755, true);
-                file_put_contents($result['path'], $tpl);
+
+            if (!@file_put_contents($targetPath, $tpl)) {
+                mkdir(Yii::getAlias(dirname($targetPath)), 0755, true);
+                file_put_contents($targetPath, $tpl);
             };
         }
 
-        return $view->renderPhpFile($result['path'], $params, $view->context);
+        return $view->renderPhpFile($targetPath, $params, $view->context);
     }
 }
